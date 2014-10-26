@@ -5,13 +5,12 @@
 #include <math.h>
 #include <sys/time.h>
 
-print_results(char *prompt, float a[N][N]);
+print_results(char *prompt, double a[N][N]);
 
 int main(int argc, char *argv[])
 {
     int i, j, k, error = 0;
-    float sum = 0;
-    float a[N][N], b[N][N], c[N][N];
+    double a[N][N], b[N][N], c[N][N];
     char *usage = "Usage: %s file\n";
     FILE *fd;
     double elapsed_time;
@@ -42,11 +41,11 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < N; i++) 
         for (j = 0; j < N; j++) 
-            fscanf (fd, "%f", &a[i][j]);
+            fscanf (fd, "%lf", &a[i][j]);
 
     for (i = 0; i < N; i++) 
         for (j = 0; j < N; j++) 
-            fscanf (fd, "%f", &b[i][j]);
+            fscanf (fd, "%lf", &b[i][j]);
 
     fclose (fd);
     ;
@@ -91,7 +90,7 @@ int main(int argc, char *argv[])
 }
 
 
-print_results(char *prompt, float a[N][N])
+print_results(char *prompt, double a[N][N])
 {
     int i, j;
 
