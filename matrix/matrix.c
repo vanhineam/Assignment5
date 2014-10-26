@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
     #pragma paraguin begin_parallel
     #pragma paraguin bcast error
-    if (error) return -1;
+        if (error) return -1;
     #pragma paraguin end_parallel
 
     // Read input from file for matrices a and b.
