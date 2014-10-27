@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 double computeValue(double A[N][M], int, int);
-printValues(double A[N][M]);
+printValues(char*, double A[N][M]);
 
 int main(int argc, char** argv)
 {
@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	double elapsed_time;
     struct timeval tv1, tv2;
     double fp_start, fp_end;
-    printf("Initializing\n");
+
     // Initialize Array
     for(i = 0; i < N; i++) {
     	for(j = 0; j < M; j++) {
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     		A[1][i][j] = 0;
     	}
     }
-    printf("Setting fireplace\n");
+
     // Set the walls to 20C
     for(i = 0; i < N; i++) {
     	A[0][0][i] = 20.0;
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
             A[1][i][j] = A[0][i][j];
         }
     }
-    printf("Barrier here\n");
+    ;
     #pragma paraguin begin_parallel
         // This barrier is here so that we can take a time stamp
         // Once we know all processes are ready to go.
@@ -58,15 +58,15 @@ int main(int argc, char** argv)
 
     // Take a time stamp
     gettimeofday(&tv1, NULL);
-    //printf("Got time of day");
+
     #pragma paraguin begin_parallel
 
-	// A[0] is initialized with data somehow and duplicated into A[1]
+	// A[0] is initialized with data somehow aso Ind duplicated into A[1]
 
     n = N;
     m = M;
     max_iterations = TOTAL_TIME;
-    //printf("%d\n", max_iterations);
+    
     #pragma paraguin stencil A n m max_iterations computeValue
 
     #pragma paraguin end_parallel
@@ -86,19 +86,22 @@ int main(int argc, char** argv)
     printf ("elapsed_time=\t%lf (seconds)\n", elapsed_time);
 
     // print result
-    printValues(A[max_iterations % 2]);
+    printValues("Array = ", A[max_iterations % 2]);
 }
 
 double computeValue(double A[N][M], int i, int j) {
 	return (A[i-1][j] + A[i+1][j] + A[i][j-1] + A[i][j+1]) * 0.25;
 }
 
-printValues(double A[N][M]) {
+printValues(char* prompt, double A[N][M]) {
 	int i, j;
+
+	printf ("\n\n%s\n", prompt);
 	for(i = 0; i < N; i++) {
 		for(j = 0; j < N; j++) {
 			printf(" %.2f", A[i][j]);
 		}
 		printf("\n");
 	}
+	printf ("\n\n");
 }
