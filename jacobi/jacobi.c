@@ -12,14 +12,13 @@ printValues(double A[N][M]);
 
 int main(int argc, char** argv)
 {
-	int i, j, n, m, max_iterations, done;
-	double A[2][N][M], *aPtr, diff, max_diff, tol;
+	int i, j, n, m, max_iterations;
+	double A[2][N][M];
 	int __guin_current = 0;
-    int __guin_next = 1;
 	double elapsed_time;
     struct timeval tv1, tv2;
     double fp_start, fp_end;
-
+    printf("Initializing\n");
     // Initialize Array
     for(i = 0; i < N; i++) {
     	for(j = 0; j < M; j++) {
@@ -27,7 +26,7 @@ int main(int argc, char** argv)
     		A[1][i][j] = 0;
     	}
     }
-
+    printf("Setting fireplace\n");
     // Set the walls to 20C
     for(i = 0; i < N; i++) {
     	A[0][0][i] = 20.0;
@@ -50,7 +49,7 @@ int main(int argc, char** argv)
             A[1][i][j] = A[0][i][j];
         }
     }
-
+    printf("Barrier here\n");
     #pragma paraguin begin_parallel
         // This barrier is here so that we can take a time stamp
         // Once we know all processes are ready to go.
@@ -59,50 +58,16 @@ int main(int argc, char** argv)
 
     // Take a time stamp
     gettimeofday(&tv1, NULL);
-
+    //printf("Got time of day");
     #pragma paraguin begin_parallel
 
 	// A[0] is initialized with data somehow and duplicated into A[1]
 
-    tol = 0.0001;
     n = N;
     m = M;
     max_iterations = TOTAL_TIME;
-
-    #pragma paraguin bcast A
-    done = 0; // false
-    while (!done) {
-
-        ; // This is to make sure the following pragma is inside the while 
-        #pragma paraguin stencilLite A n m max_iterations computeValue
-        max_diff = 0.0;
-        #pragma paraguin forall
-        for (i = 1; i < n - 1; i++) {
-            for (j = 1; j < n - 1; j++) {
-                diff = fabs(A[__guin_current][i][j] - A[__guin_next][i][j]);
-                if (diff > max_diff) max_diff = diff;
-            }
-        }
-        ; // This is needed to prevent the pragma from being located in the
-          // above loop nest
-
-        // Reduce the max_diff's from all processors
-        #pragma paraguin reduce max max_diff diff
-
-
-        // Broadcast the diff so that all processors will agree to continue
-        // or terminate
-        #pragma paraguin bcast diff
-
-        // Termination condition if the maximum change in values is less
-        // than the tolerance.
-        if (diff <= tol) done = 1; // true
-    }
-
-    aPtr = &A[__guin_current][1][0];
-    n = (N - 2) * M * sizeof(double);
-
-    #pragma paraguin gather aPtr( n )
+    //printf("%d\n", max_iterations);
+    #pragma paraguin stencil A n m max_iterations computeValue
 
     #pragma paraguin end_parallel
 
